@@ -18,6 +18,9 @@ export default function Home() {
   // const [withdrawAmount, setWithdrawAmount] = useState("");
   // const [depositAmount, setDepositAmount] = useState("");
 
+  const localhostURL = "localhost";
+  const BASEURL = "ec2-13-60-186-122.eu-north-1.compute.amazonaws.com";
+
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     const savedUsername = localStorage.getItem("username");
@@ -44,7 +47,7 @@ export default function Home() {
 
   const handleCreateAccount = async () => {
     try {
-      const response = await fetch("http://localhost:3001/users", {
+      const response = await fetch(`http://${localhostURL}:3001/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,9 +58,12 @@ export default function Home() {
         }),
       });
       const data = await response.json();
+      console.log("create account data:", data);
+      console.log("create account response:", response);
+
+      
 
       if (response.ok) {
-        console.log("data", data);
         alert("Account created successfully");
         setAccountDetails({
           createdUsername: username,
@@ -95,7 +101,7 @@ export default function Home() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3001/sessions", {
+      const response = await fetch(`http://${localhostURL}:3001/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -128,7 +134,7 @@ export default function Home() {
 
   const fetchAccount = async (token) => {
     try {
-      const response = await fetch("http://localhost:3001/me/accounts", {
+      const response = await fetch(`http://${localhostURL}:3001/me/accounts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -168,7 +174,7 @@ export default function Home() {
       console.log("Token:", token);
 
       const response = await fetch(
-        "http://localhost:3001/me/accounts/transactions/deposit",
+        `http://${localhostURL}:3001/me/accounts/transactions/deposit`,
         {
           method: "POST",
           headers: {
@@ -218,7 +224,7 @@ export default function Home() {
       console.log("Token:", token);
 
       const response = await fetch(
-        "http://localhost:3001/me/accounts/transactions/withdraw",
+        `http://${localhostURL}:3001/me/accounts/transactions/withdraw`,
         {
           method: "POST",
           headers: {
