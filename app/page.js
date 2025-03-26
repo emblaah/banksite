@@ -15,19 +15,18 @@ export default function Home() {
   // deposit, withdrawal, balance states
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState("");
-  const [transactionType, setTransactionType] = useState("deposit");
   // const [withdrawAmount, setWithdrawAmount] = useState("");
   // const [depositAmount, setDepositAmount] = useState("");
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
-    const savedBalance = localStorage.getItem("balance");
     const savedUsername = localStorage.getItem("username");
+    const savedBalance = localStorage.getItem("balance");
 
     console.log("Loaded from localStorage:", {
       savedToken,
-      savedBalance,
       savedUsername,
+      savedBalance,
     });
 
     if (savedToken && savedUsername) {
@@ -35,10 +34,9 @@ export default function Home() {
       setUsername(savedUsername);
       setLoggedIn(true);
     }
+
     if (savedBalance) {
       setBalance(parseFloat(savedBalance));
-    } else {
-      fetchAccount(savedToken);
     }
   }, []);
 
@@ -137,10 +135,14 @@ export default function Home() {
         },
         body: JSON.stringify({ token }),
       });
-
       const data = await response.json();
-      console.log("Response Data fetchAccount:", data);
-      setAccountDetails(data);
+
+      console.log("response.ok " + response.ok);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status ${response.status}`);
+      }
+
+      console.log("Response Data:", data);
       setBalance(data.amount);
 
       localStorage.setItem("balance", data.amount);
@@ -149,9 +151,8 @@ export default function Home() {
     }
   };
 
-  const handleTransaction = async (e, amount) => {
-    e.preventDefault();
-
+  const handleDepositTransaction = async (transactionType) => {
+    fetchAccount(token); // Fetch account to get the latest balance
     const transactionAmount = parseFloat(amount);
 
     if (isNaN(transactionAmount) || transactionAmount <= 0) {
@@ -160,42 +161,105 @@ export default function Home() {
     }
 
     try {
+      console.log("start");
+
       const token = localStorage.getItem("token");
 
+      console.log("Token:", token);
+
       const response = await fetch(
-        "http://localhost:3001/me/accounts/transactions",
+        "http://localhost:3001/me/accounts/transactions/deposit",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            token,
-            depositAmount:
-              transactionType === "deposit"
-                ? transactionAmount
-                : transactionType === "withdraw"
-                ? -transactionAmount
-                : 0,
+            transactionType,
+            depositAmount: transactionAmount,
+            token: token,
           }),
         }
       );
+
+      console.log("response in deposit:", response);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Response Data handleTransaction:", data);
+        setBalance(data.amount);
+        localStorage.setItem("balance", data.amount);
+        setAmount("");
+        alert(`Transaction successful`);
+      } else {
+        console.log("response not ok");
+        throw new Error("Failed to make transaction");
+      }
+      // fetchAccount(token);
+    } catch (error) {
+      console.error("Error during transaction:", error);
+      alert("An error occured while making a transaction: " + error);
+    }
+  };
+
+  const handleWithdrawTransaction = async (transactionType) => {
+    const transactionAmount = parseFloat(amount);
+
+    if (isNaN(transactionAmount) || transactionAmount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    try {
+      console.log("start");
+
+      const token = localStorage.getItem("token");
+
+      console.log("Token:", token);
+
+      const response = await fetch(
+        "http://localhost:3001/me/accounts/transactions/withdraw",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            transactionType,
+            withdrawAmount: transactionAmount,
+            token: token,
+          }),
+        }
+      );
+
+      console.log("response in withdraw:", response);
+
+      if (!response.ok) {
+        console.log("response not ok");
+
+        throw new Error("Failed to make transaction");
+      }
+
       const data = await response.json();
       console.log("Response Data handleTransaction:", data);
 
-      if (response.ok) {
-        setBalance(data.account.amount);
-        localStorage.setItem("balance", data.account.amount);
-        setAmount("");
-        alert("Transaction successful");
-      } else {
-        console.error("Transation failed:", data.message);
-        alert(data.message);
-      }
+      setBalance(data.amount);
+      localStorage.setItem("balance", data.amount);
+      setAmount("");
+      alert(`Transaction successful`);
+      // fetchAccount(token);
     } catch (error) {
       console.error("Error during transaction:", error);
       alert("An error occured while making a transaction");
     }
+  };
+
+  const handleDeposit = () => {
+    handleDepositTransaction("deposit");
+  };
+
+  const handleWithdraw = () => {
+    handleWithdrawTransaction("withdraw");
   };
 
   const handleKeyDown = (e) => {
@@ -226,37 +290,25 @@ export default function Home() {
               type="number"
               className="p-2 border rounded-lg w-full"
               value={amount}
+              min="0"
               onChange={(e) => {
-                const newAmount = e.target.value;
-                if (!newAmount || !isNaN(newAmount)) {
-                  setAmount(newAmount);
-                }
+                setAmount(e.target.value);
               }}
             />
           </label>
 
           <div className="flex gap-4">
             <button
-              className={`border p-2 rounded-lg ${
-                transactionType === "deposit" ? "bg-green-400" : ""
-              }`}
-              onClick={() => setTransactionType("deposit")}>
+              className={`border p-2 rounded-lg bg-green-400 `}
+              onClick={handleDeposit}>
               Deposit
             </button>
             <button
-              className={`border p-2 rounded-lg ${
-                transactionType === "withdraw" ? "bg-red-400" : ""
-              }`}
-              onClick={() => setTransactionType("withdraw")}>
+              className={`border p-2 rounded-lg bg-red-400`}
+              onClick={handleWithdraw}>
               Withdraw
             </button>
           </div>
-
-          <button
-            className="bg-blue-500 text-white p-2 rounded-lg w-full hover:bg-blue-600"
-            onClick={handleTransaction}>
-            {transactionType === "deposit" ? "Deposit" : "Withdraw"} Amount
-          </button>
         </div>
 
         <button className="border p-2 rounded-lg" onClick={handleLogout}>

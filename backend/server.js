@@ -88,24 +88,99 @@ app.post("/me/accounts", async (req, res) => {
   }
 });
 
-app.post("/me/accounts/transactions", async (req, res) => {
-  const { token, depositAmount } = req.body;
+app.post("/me/accounts/transactions/deposit", async (req, res) => {
+  const { depositAmount, token } = req.body;
 
+  console.log("depositAmount", depositAmount);
   const session = sessions.find((session) => session.token === token);
 
   if (session) {
-    const { userId } = session.userId;
+    console.log("session", session);
+
+    const userId = session.userId;
     const account = accounts.find((account) => account.userId === userId);
+
     if (account && session) {
-      account.amount += Number(depositAmount);
-      res.json({ message: "Deposit successful", account });
+
+      account.amount += depositAmount;
+
+      console.log("account after added deposit", account);
+
+      res.json(account);
     } else {
-      res.status(401).json({ message: "Account not found" });
+      res.status(404).send("Account not found");
     }
   } else {
-    res.status(401).json({ message: "Invalid session" });
+    res.status(404).send("Session not found");
   }
+
+  app.post("/me/accounts/transactions/withdraw", async (req, res) => {
+    const { withdrawAmount, token } = req.body;
+
+    console.log("withdrawamount", withdrawAmount);
+    const session = sessions.find((session) => session.token === token);
+
+    if (session) {
+      
+
+      const userId = session.userId;
+      const account = accounts.find((account) => account.userId === userId);
+
+      if (account && session) {
+        
+        if (account.amount < withdrawAmount) {
+          res.status(400).send("Insufficient funds");
+          return;
+        }
+        account.amount -= withdrawAmount;
+
+        console.log("account after added withdraw", account);
+
+        res.json(account);
+      } else {
+        res.status(404).send("Account not found");
+      }
+    } else {
+      res.status(404).send("Session not found");
+    }
+  });
+  // const session = sessions.find((session) => session.token === token);
+
+  // const account = accounts.find((account) => account.userId === userId);
 });
+
+// app.post("/me/accounts/transactions", async (req, res) => {
+//   const { token, transactionType, amount } = req.body;
+
+//   const session = sessions.find((session) => session.token === token);
+
+//   if (session) {
+//     const { userId } = session;
+//     const account = accounts.find((account) => account.userId === userId);
+
+//     if (account) {
+//       if (transactionType === "deposit") {
+//         account.amount += amount;
+//         res.json({ message: "Deposit successful", account });
+//       } else if (transactionType === "withdraw") {
+//         if (account.amount >= amount) {
+//           account.amount -= amount;
+//           res.json({ message: "Withdraw successful", account });
+//         } else {
+//           res.status(400).json({ message: "Insufficient funds" });
+//         }
+//       } else {
+//         return res.status(400).json({ message: "Invalid transaction type" });
+//       }
+
+//       req.json({ message: "Transaction successful", account });
+//     } else {
+//       return res.status(404).json({ message: "Account not found" });
+//     }
+//   } else {
+//     return res.status(401).json({ message: "Invalid session" });
+//   }
+// });
 
 // Starta servern
 app.listen(PORT, () => {
