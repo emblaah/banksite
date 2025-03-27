@@ -1,6 +1,6 @@
 "use client";
-import { parse } from "path";
 import { useState, useRef, useEffect } from "react";
+import Header from "./components/Header";
 
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -15,8 +15,9 @@ export default function Home() {
   // deposit, withdrawal, balance states
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState("");
-  // const [withdrawAmount, setWithdrawAmount] = useState("");
-  // const [depositAmount, setDepositAmount] = useState("");
+
+  const loginButtonRef = useRef(null);
+  const loginFormRef = useRef(null);
 
   const localhostURL = "localhost";
   const BASEURL = "ec2-13-60-186-122.eu-north-1.compute.amazonaws.com";
@@ -43,8 +44,6 @@ export default function Home() {
     }
   }, []);
 
-  const loginButtonRef = useRef(null);
-
   const handleCreateAccount = async () => {
     try {
       const response = await fetch(`http://${localhostURL}:3001/users`, {
@@ -60,8 +59,6 @@ export default function Home() {
       const data = await response.json();
       console.log("create account data:", data);
       console.log("create account response:", response);
-
-      
 
       if (response.ok) {
         alert("Account created successfully");
@@ -268,149 +265,149 @@ export default function Home() {
     handleWithdrawTransaction("withdraw");
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
+  const focusLoginForm = () => {
+    if (loginFormRef.current) {
+      loginFormRef.current.focus();
     }
   };
 
   if (loggedIn) {
     return (
-      <div className="min-h-screen bg-base-100 flex items-center flex-col gap-2">
-        <h1 className="text-2xl pt-4">Welcome, {username}!</h1>
+      <div>
+        <Header loggedIn={loggedIn} handleLogout={handleLogout} />
+        <div className="min-h-screen bg-base-100 flex items-center flex-col gap-2">
+          <h1 className="text-2xl pt-4">Welcome, {username}!</h1>
 
-        <div className="border w-[600px] flex justify-center flex-col items-center h-[300px] p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl mb-4">Your account balance is:</h2>
-          <p className="text-3xl font-bold text-green-600">{balance} kr</p>
-        </div>
-
-        <div className="border w-[600px] flex flex-col items-center gap-4 p-6 rounded-xl shadow-lg mt-6">
-          <h2 className="text-lg font-semibold">Make a Transaction</h2>
-
-          <label className="flex flex-col gap-2 w-full">
-            <span className="text-sm">
-              Enter amount to withdraw or deposit:
-            </span>
-            <input
-              placeholder="Amount in kr"
-              type="number"
-              className="p-2 border rounded-lg w-full"
-              value={amount}
-              min="0"
-              onChange={(e) => {
-                setAmount(e.target.value);
-              }}
-            />
-          </label>
-
-          <div className="flex gap-4">
-            <button
-              className={`border p-2 rounded-lg bg-green-400 `}
-              onClick={handleDeposit}>
-              Deposit
-            </button>
-            <button
-              className={`border p-2 rounded-lg bg-red-400`}
-              onClick={handleWithdraw}>
-              Withdraw
-            </button>
+          <div className="border w-[600px] flex justify-center flex-col items-center h-[300px] p-6 rounded-xl shadow-lg">
+            <h2 className="text-xl mb-4">Your account balance is:</h2>
+            <p className="text-3xl font-bold text-green-600">{balance} kr</p>
           </div>
-        </div>
 
-        <button className="border p-2 rounded-lg" onClick={handleLogout}>
-          Log out
-        </button>
+          <div className="border w-[600px] flex flex-col items-center gap-4 p-6 rounded-xl shadow-lg mt-6">
+            <h2 className="text-lg font-semibold">Make a Transaction</h2>
+
+            <label className="flex flex-col gap-2 w-full">
+              <span className="text-sm">
+                Enter amount to withdraw or deposit:
+              </span>
+              <input
+                placeholder="Amount in kr"
+                type="number"
+                className="p-2 border rounded-lg w-full"
+                value={amount}
+                min="0"
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                }}
+              />
+            </label>
+
+            <div className="flex gap-4">
+              <button
+                className={`border p-2 rounded-lg bg-green-400 `}
+                onClick={handleDeposit}>
+                Deposit
+              </button>
+              <button
+                className={`border p-2 rounded-lg bg-red-400`}
+                onClick={handleWithdraw}>
+                Withdraw
+              </button>
+            </div>
+          </div>
+
+          <button className="border p-2 rounded-lg" onClick={handleLogout}>
+            Log out
+          </button>
+        </div>
       </div>
     );
   }
 
-  // if (loggedIn) {
-  //   return (
-  //     <div className="min-h-screen bg-base-100 flex items-center flex-col gap-2">
-  //       <h1 className="text-2xl pt-4">Welcome, {username}!</h1>
-  //       <div className="border w-[600px] justify-center flex h-[600px] rounded-xl">
-  //         <h2>Your account balance is: {balance} kr</h2>
-  //       </div>
-
-  //     </div>
-  //   );
-  // }
-
   return (
-    <div className="flex justify-center items-center mt-10">
-      <div className="flex gap-8 border p-10 rounded-xl">
-        {/* Create Account */}
+    <div>
+      <Header
+        loggedIn={loggedIn}
+        handleLogout={handleLogout}
+        focusLoginForm={focusLoginForm}
+      />
 
-        <div className="flex flex-col gap-2">
-          <h2 className="text-xl">Create Account</h2>
-          <label className="border p-2 rounded-xl flex items-center gap-2">
-            <input
-              type="text"
-              fill="currentColor"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </label>
-          <label className="border p-2 rounded-xl  flex items-center gap-2">
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => handleKeyDown(e, handleCreateAccount)}
-            />
-          </label>
-          <div className="flex flex-col">
-            <button
-              className="border p-2 rounded-lg"
-              onClick={handleCreateAccount}>
-              Create Account
-            </button>
-          </div>
+      <div className="flex flex-col justify-center items-center mt-10">
+        <div className="text-2xl mb-4">
+          <h1>Welcome to VeloBank!</h1>
         </div>
+        <div className="flex gap-8 border p-10 rounded-xl">
+          {/* Create Account */}
 
-        {/* Log in */}
-
-        <div className="flex flex-col gap-2">
-          <h2 className="text-xl">Log in</h2>
-          <label className="border p-2 rounded-xl flex items-center gap-2">
-            <input
-              type="text"
-              fill="currentColor"
-              placeholder="Username"
-              value={accountDetails.createdUsername}
-              onChange={(e) =>
-                setAccountDetails({
-                  ...accountDetails,
-                  createdUsername: e.target.value,
-                })
-              }
-              onKeyDown={(e) => handleKeyDown(e, handleLogin)}
-            />
-          </label>
-          <label className="border p-2 rounded-xl  flex items-center gap-2">
-            <input
-              type="password"
-              className="text-base-content"
-              placeholder="Password"
-              value={accountDetails.createdPassword}
-              onChange={(e) =>
-                setAccountDetails({
-                  ...accountDetails,
-                  createdPassword: e.target.value,
-                })
-              }
-              onKeyDown={(e) => handleKeyDown(e, handleLogin)}
-            />
-          </label>
           <div className="flex flex-col gap-2">
-            <button
-              className="border p-2 rounded-lg"
-              onClick={handleLogin}
-              ref={loginButtonRef}>
-              Log in
-            </button>
+            <h2 className="text-xl">Create Account</h2>
+            <label className="border p-2 rounded-xl flex items-center gap-2">
+              <input
+                type="text"
+                fill="currentColor"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </label>
+            <label className="border p-2 rounded-xl  flex items-center gap-2">
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+            <div className="flex flex-col">
+              <button
+                className="border p-2 rounded-lg"
+                onClick={handleCreateAccount}>
+                Create Account
+              </button>
+            </div>
+          </div>
+
+          {/* Log in */}
+
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl">Log in</h2>
+            <label className="border p-2 rounded-xl flex items-center gap-2">
+              <input
+                type="text"
+                fill="currentColor"
+                placeholder="Username"
+                value={accountDetails.createdUsername}
+                onChange={(e) =>
+                  setAccountDetails({
+                    ...accountDetails,
+                    createdUsername: e.target.value,
+                  })
+                }
+                ref={loginFormRef}
+              />
+            </label>
+            <label className="border p-2 rounded-xl  flex items-center gap-2">
+              <input
+                type="password"
+                className="text-base-content"
+                placeholder="Password"
+                value={accountDetails.createdPassword}
+                onChange={(e) =>
+                  setAccountDetails({
+                    ...accountDetails,
+                    createdPassword: e.target.value,
+                  })
+                }
+              />
+            </label>
+            <div className="flex flex-col gap-2">
+              <button
+                className="border p-2 rounded-lg"
+                onClick={handleLogin}
+                ref={loginButtonRef}>
+                Log in
+              </button>
+            </div>
           </div>
         </div>
       </div>

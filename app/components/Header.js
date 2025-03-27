@@ -1,33 +1,38 @@
 "use client";
 import Link from "next/link";
 
-export default function Header() {
+export default function Header({ loggedIn, handleLogout, focusLoginForm }) {
   return (
-    <nav className="bg-gray-800 p-4">
-      <ul className="flex justify-between">
+    <nav className="bg-white dark:bg-gray-900 shadow-md transition-colors duration-300 ease-in-out p-4">
+      <ul className="flex justify-between items-center max-w-7xl mx-auto">
         <li>
-          <Link href="/">
-            <div className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
-              SwedenBank
+          <Link href="/" className="group">
+            <div
+              className="bg-blue-600 dark:bg-blue-800 text-white py-2 px-4 rounded-lg transition-all duration-300 ease-in-out group-hover:bg-blue-700 dark:group-hover:bg-blue-900
+              transform group-hover:scale-105 shadow-md group-hover:shadow-lg">
+              <span className="font-semibold tracking-wider text-lg">
+                VeloBank
+              </span>
             </div>
           </Link>
         </li>
-        <div className="flex gap-2">
-          <li>
-            <Link href="/login">
-              <button className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
-                Login
+        <li>
+          {loggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:bg-red-600 transform hover:scale-105 shadow-md hover:shadow-lg cursor-default">
+              Log out
+            </button>
+          ) : (
+            <Link href="/">
+              <button
+                onClick={focusLoginForm}
+                className="bg-green-500 text-white py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:bg-green-600 transform hover:scale-105 shadow-md hover:shadow-lg cursor-default">
+                Log in
               </button>
             </Link>
-          </li>
-          <li>
-            <Link href="/createAccount">
-              <button className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">
-                Create Account
-              </button>
-            </Link>
-          </li>
-        </div>
+          )}
+        </li>
       </ul>
     </nav>
   );
