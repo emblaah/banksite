@@ -46,7 +46,7 @@ export default function Home() {
 
   const handleCreateAccount = async () => {
     try {
-      const response = await fetch(`http://${localhostURL}:3001/users`, {
+      const response = await fetch(`http://${localhostURL}:3003/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,7 +98,7 @@ export default function Home() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://${localhostURL}:3001/sessions`, {
+      const response = await fetch(`http://${localhostURL}:3003/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,7 +131,7 @@ export default function Home() {
 
   const fetchAccount = async (token) => {
     try {
-      const response = await fetch(`http://${localhostURL}:3001/me/accounts`, {
+      const response = await fetch(`http://${localhostURL}:3003/me/accounts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -171,7 +171,7 @@ export default function Home() {
       console.log("Token:", token);
 
       const response = await fetch(
-        `http://${localhostURL}:3001/me/accounts/transactions/deposit`,
+        `http://${localhostURL}:3003/me/accounts/transactions/deposit`,
         {
           method: "POST",
           headers: {
@@ -221,7 +221,7 @@ export default function Home() {
       console.log("Token:", token);
 
       const response = await fetch(
-        `http://${localhostURL}:3001/me/accounts/transactions/withdraw`,
+        `http://${localhostURL}:3003/me/accounts/transactions/withdraw`,
         {
           method: "POST",
           headers: {
